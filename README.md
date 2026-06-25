@@ -1,4 +1,4 @@
-# Open Transit Hub (In Progress)
+# Open Transit Hub (Under Deelopment)
 
 A real-time public transit tracker rebuilt on the **OC Transpo GTFS-RT API** —
 replacing the retired OCTranspo API 2.0 (shut down April 30, 2025).
