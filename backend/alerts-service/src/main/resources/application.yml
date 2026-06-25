@@ -1,0 +1,16 @@
+server:
+  port: 8084
+
+spring:
+  application:
+    name: alerts-service
+  cache:
+    type: caffeine
+    caffeine:
+      spec: maximumSize=100,expireAfterWrite=300s
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

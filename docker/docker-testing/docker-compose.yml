@@ -1,0 +1,108 @@
+version: "3.9"
+
+# Open Transit Hub — Docker Compose
+#
+# Usage:
+#   export GTFS_RT_SUBSCRIPTION_KEY=<your-key-from-nextrip-public-api.developer.azure-api.net>
+#   docker-compose up
+#
+# Frontend will be at http://localhost:3000
+# API Gateway at      http://localhost:8080
+
+services:
+
+  # ── Spring Cloud Gateway ────────────────────────────────────────────────────
+  api-gateway:
+    build: ./backend/api-gateway
+    image: api-gateway:1.0.0
+    ports:
+      - "8080:8080"
+    depends_on:
+      - stop-service
+      - alerts-service
+      - arrivals-service
+      - vehicles-service
+    networks:
+      - transit-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # ── Stop Service (GTFS static) ───────────────────────────────────────────────
+  stop-service:
+    build: ./backend/stop-service
+    image: stop-service:1.0.0
+    ports:
+      - "8081:8081"
+    networks:
+      - transit-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/stops/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+ 
+  # ── Alerts Service (RSS feed) ────────────────────────────────────────────────
+  alerts-service:
+    build: ./backend/alerts-service
+    image: alerts-service:1.0.0
+    ports:
+      - "8084:8084"
+    networks:
+      - transit-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8084/alerts/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+# ── Arrivals Service (GTFS-RT TripUpdates) ──────────────────────────────────
+  arrivals-service:
+    build: ./backend/arrivals-service
+    image: arrivals-service:1.0.0
+    ports:
+      - "8082:8082"
+    environment:
+      - GTFS_RT_SUBSCRIPTION_KEY="08f0de09a1f4409bb7a2bd06798b935b"
+    networks:
+      - transit-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8082/arrivals/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # ── Vehicles Service (GTFS-RT VehiclePositions) ─────────────────────────────
+  vehicles-service:
+    build: ./backend/vehicles-service
+    image: vehicles-service:1.0.0
+    ports:
+      - "8083:8083"
+    environment:
+      - GTFS_RT_SUBSCRIPTION_KEY="08f0de09a1f4409bb7a2bd06798b935b"
+    networks:
+      - transit-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8083/vehicles/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+  # ── React Frontend ───────────────────────────────────────────────────────────
+  frontend:
+    build: ./frontend
+    image: transit-hub-frontend:1.0.0
+    ports:
+      - "8077:80"
+    depends_on:
+      - api-gateway
+    environment:
+      - VITE_API_BASE_URL=http://api-gateway:8080/api
+    networks:
+      - transit-net
+
+networks:
+  transit-net:
+    driver: bridge

@@ -1,0 +1,48 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods: ["GET", "POST", "OPTIONS"]
+            allowedHeaders: "*"
+      routes:
+        - id: stop-service
+          uri: http://stop-service:8081
+          predicates:
+            - Path=/api/stops/**
+          filters:
+            - StripPrefix=1
+
+        - id: arrivals-service
+          uri: http://arrivals-service:8082
+          predicates:
+            - Path=/api/arrivals/**
+          filters:
+            - StripPrefix=1
+
+        - id: vehicles-service
+          uri: http://vehicles-service:8083
+          predicates:
+            - Path=/api/vehicles/**
+          filters:
+            - StripPrefix=1
+
+        - id: alerts-service
+          uri: http://alerts-service:8084
+          predicates:
+            - Path=/api/alerts/**
+          filters:
+            - StripPrefix=1
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

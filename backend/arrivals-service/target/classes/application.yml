@@ -1,0 +1,35 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: arrivals-service
+  cache:
+    type: caffeine
+    caffeine:
+      spec: maximumSize=500,expireAfterWrite=30s
+
+gtfs:
+  rt:
+    # Set via environment variable: GTFS_RT_SUBSCRIPTION_KEY=<your-key>
+    # Register at https://nextrip-public-api.developer.azure-api.net/
+    subscription-key: "08f0de09a1f4409bb7a2bd06798b935b"
+    cache-ttl-seconds: 30
+  static: 
+    url: "https://oct-gtfs-emasagcnfmcgeham.z01.azurefd.net/public-access/GTFSExport.zip" 
+  storage: 
+    path: "./gtfs-data"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+oc: 
+  api: 
+    subscription-key: "08f0de09a1f4409bb7a2bd06798b935b"
+
+   
+    
+  

@@ -1,0 +1,21 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: vehicles-service
+  cache:
+    type: caffeine
+    caffeine:
+      spec: maximumSize=200,expireAfterWrite=30s
+
+gtfs:
+  rt:
+    subscription-key: ${GTFS_RT_SUBSCRIPTION_KEY:"08f0de09a1f4409bb7a2bd06798b935b"}
+    cache-ttl-seconds: 30
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
